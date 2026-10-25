@@ -1,0 +1,25 @@
+# Odvisnosti
+node_modules/
+
+# Okoljske spremenljivke (gesla, ključi)
+.env
+.env.*
+!.env.example
+
+# Build
+dist/
+build/
+
+# Naložene fotografije rastlin
+backend/uploads/
+
+# Dnevniki
+logs/
+*.log
+npm-debug.log*
+
+# Urejevalniki in operacijski sistem
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
