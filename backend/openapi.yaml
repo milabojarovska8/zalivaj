@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: Zalivaj API
+  version: 0.1.0
+  description: REST API za organizacijo varstva sobnih rastlin.
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /api/auth/register:
+    post:
+      tags: [Avtentikacija]
+      summary: Registracija novega uporabnika
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, location]
+              properties:
+                name: { type: string, example: Ana Novak }
+                email: { type: string, example: ana@zalivaj.test }
+                password: { type: string, example: test123 }
+                location: { type: string, example: "Rožna dolina, blok 5" }
+      responses:
+        "201": { description: Račun je ustvarjen, vrne žeton in uporabnika }
+        "400": { description: Manjkajoča ali neveljavna polja }
+        "409": { description: Ta e-pošta je že v uporabi }
+  /api/auth/login:
+    post:
+      tags: [Avtentikacija]
+      summary: Prijava
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: ana@zalivaj.test }
+                password: { type: string, example: test123 }
+      responses:
+        "200": { description: Vrne žeton JWT in uporabnika }
+        "401": { description: Napačna e-pošta ali geslo }
+        "403": { description: Vaš račun je blokiran }
+  /api/auth/me:
+    get:
+      tags: [Avtentikacija]
+      summary: Podatki prijavljenega uporabnika
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Prijavljeni uporabnik }
+        "401": { description: Niste prijavljeni }
