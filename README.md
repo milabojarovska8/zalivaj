@@ -60,7 +60,7 @@ npm run dev               # aplikacija na http://localhost:5173
 ## Stanje razvoja (MVP)
 
 - [x] US-01 – Registracija in prijava
-- [ ] US-02 – Profili rastlin
+- [x] US-02 – Profili rastlin
 - [ ] US-03 – Ustvarjanje prošnje za varstvo
 - [ ] US-05 – Prijava na prošnjo
 - [ ] US-06 – Izbira varuha

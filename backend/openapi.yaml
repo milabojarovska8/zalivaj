@@ -11,6 +11,18 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    PlantForm:
+      type: object
+      required: [name, wateringEveryDays]
+      properties:
+        name: { type: string, example: Bazilika }
+        species: { type: string, example: Ocimum basilicum }
+        wateringEveryDays: { type: integer, minimum: 1, example: 2 }
+        waterAmountMl: { type: integer, example: 100 }
+        light: { type: string, enum: [LOW, MEDIUM, HIGH] }
+        notes: { type: string, example: Ne zalivaj listov }
+        photo: { type: string, format: binary }
 paths:
   /api/auth/register:
     post:
@@ -58,3 +70,54 @@ paths:
       responses:
         "200": { description: Prijavljeni uporabnik }
         "401": { description: Niste prijavljeni }
+  /api/plants:
+    get:
+      tags: [Rastline]
+      summary: Seznam rastlin prijavljenega lastnika
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Seznam rastlin }
+    post:
+      tags: [Rastline]
+      summary: Dodajanje rastline
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/PlantForm"
+      responses:
+        "201": { description: Rastlina je dodana }
+        "400": { description: Manjkajoča ali neveljavna polja }
+  /api/plants/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Rastline]
+      summary: Podrobnosti lastne rastline
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Rastlina }
+        "403": { description: Rastlina pripada drugemu uporabniku }
+        "404": { description: Rastlina ne obstaja }
+    put:
+      tags: [Rastline]
+      summary: Urejanje lastne rastline
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/PlantForm"
+      responses:
+        "200": { description: Rastlina je posodobljena }
+        "403": { description: Rastlina pripada drugemu uporabniku }
+    delete:
+      tags: [Rastline]
+      summary: Brisanje lastne rastline
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204": { description: Rastlina je izbrisana }
+        "403": { description: Rastlina pripada drugemu uporabniku }
