@@ -61,7 +61,7 @@ npm run dev               # aplikacija na http://localhost:5173
 
 - [x] US-01 – Registracija in prijava
 - [x] US-02 – Profili rastlin
-- [ ] US-03 – Ustvarjanje prošnje za varstvo
+- [x] US-03 – Ustvarjanje prošnje za varstvo
 - [ ] US-05 – Prijava na prošnjo
 - [ ] US-06 – Izbira varuha
 - [ ] US-07 – Samodejni urnik zalivanja
