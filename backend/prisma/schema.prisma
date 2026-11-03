@@ -12,6 +12,12 @@ enum Role {
   ADMIN
 }
 
+enum Light {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   name         String   @db.VarChar(100)
@@ -22,5 +28,24 @@ model User {
   isBlocked    Boolean  @default(false) @map("is_blocked")
   createdAt    DateTime @default(now()) @map("created_at")
 
+  plants Plant[]
+
   @@map("users")
+}
+
+model Plant {
+  id                String   @id @default(uuid()) @db.Uuid
+  ownerId           String   @map("owner_id") @db.Uuid
+  name              String   @db.VarChar(100)
+  species           String?  @db.VarChar(100)
+  wateringEveryDays Int      @map("watering_every_days")
+  waterAmountMl     Int?     @map("water_amount_ml")
+  light             Light?
+  notes             String?
+  photoUrl          String?  @map("photo_url") @db.VarChar(255)
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  owner User @relation(fields: [ownerId], references: [id])
+
+  @@map("plants")
 }
