@@ -16,6 +16,7 @@ function logout() {
     <RouterLink to="/plants" class="logo">Zalivaj</RouterLink>
     <nav>
       <RouterLink to="/plants">Moje rastline</RouterLink>
+      <RouterLink to="/requests">Moje prošnje</RouterLink>
     </nav>
     <div class="nav-right">
       <span class="muted">{{ auth.user?.name }}</span>

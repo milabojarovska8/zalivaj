@@ -1,6 +1,6 @@
 import { prisma } from '../prisma.js';
 import { removeUpload } from '../middleware/upload.js';
-import { forbidden, notFound } from '../utils/httpError.js';
+import { conflict, forbidden, notFound } from '../utils/httpError.js';
 
 export function listOwn(ownerId) {
   return prisma.plant.findMany({ where: { ownerId }, orderBy: { createdAt: 'asc' } });
@@ -26,6 +26,10 @@ export async function update(id, ownerId, data, photoUrl) {
 
 export async function remove(id, ownerId) {
   const plant = await getOwn(id, ownerId);
+  const inUse = await prisma.requestPlant.count({
+    where: { plantId: id, request: { status: { in: ['OPEN', 'ACTIVE'] } } },
+  });
+  if (inUse) throw conflict('Rastlina je del odprte ali aktivne prošnje, zato je ni mogoče izbrisati');
   await prisma.plant.delete({ where: { id } });
   removeUpload(plant.photoUrl);
 }

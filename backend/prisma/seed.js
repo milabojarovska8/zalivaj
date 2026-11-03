@@ -29,6 +29,27 @@ async function main() {
     });
   }
 
+  // Primer odprte prošnje: čez teden dni za 10 dni, z baziliko in monstero
+  if ((await prisma.sittingRequest.count({ where: { ownerId: ana.id } })) === 0) {
+    const day = (offset) => {
+      const d = new Date();
+      d.setUTCHours(0, 0, 0, 0);
+      d.setUTCDate(d.getUTCDate() + offset);
+      return d;
+    };
+    const plants = await prisma.plant.findMany({ where: { ownerId: ana.id, name: { in: ['Bazilika', 'Monstera'] } } });
+    await prisma.sittingRequest.create({
+      data: {
+        ownerId: ana.id,
+        startDate: day(7),
+        endDate: day(16),
+        location: 'Rožna dolina, blok 5',
+        note: 'Ključ je na recepciji',
+        plants: { create: plants.map((p) => ({ plantId: p.id })) },
+      },
+    });
+  }
+
   console.log('Testni podatki so naloženi.');
 }
 
