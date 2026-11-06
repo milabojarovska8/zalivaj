@@ -48,3 +48,7 @@ a.btn { text-decoration: none; display: inline-block; }
 .badge.cancelled, .badge.overdue { color: #b3261e; border-color: #b3261e; }
 .apply-box { margin-top: 1.5rem; max-width: 520px; }
 .apply-box h2 { margin-top: 0; }
+.table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+.table th, .table td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid #eee; font-size: .9rem; }
+.table th { background: #f0f3ee; }
+.table tr.overdue td { color: #b3261e; }

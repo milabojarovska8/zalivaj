@@ -3,11 +3,12 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { errorMessage } from '../api/client.js';
 import { requestsApi } from '../api/requests.js';
-import { STATUS_LABELS, formatRange, trustLabel } from '../utils.js';
+import { STATUS_LABELS, formatDate, formatRange, trustLabel } from '../utils.js';
 
 const route = useRoute();
 const request = ref(null);
 const applications = ref([]);
+const tasks = ref([]);
 const error = ref('');
 const message = ref('');
 const actionError = ref('');
@@ -17,6 +18,8 @@ async function load() {
   try {
     request.value = await requestsApi.get(route.params.id);
     applications.value = request.value.isOwner ? await requestsApi.applications(route.params.id) : [];
+    const involved = request.value.isOwner || request.value.myApplication?.status === 'ACCEPTED';
+    tasks.value = involved && request.value.status !== 'OPEN' ? await requestsApi.tasks(route.params.id) : [];
   } catch (err) {
     error.value = errorMessage(err);
   }
@@ -91,6 +94,28 @@ onMounted(load);
     <p v-if="!request.isOwner && request.myApplication?.status === 'ACCEPTED'" class="card">
       <span class="badge active">Sprejeti</span> Za to varstvo ste izbrani kot varuh.
     </p>
+
+    <!-- Urnik zalivanja (ustvari se ob sprejemu varuha) -->
+    <section v-if="tasks.length">
+      <h2>Urnik zalivanja</h2>
+      <table class="table">
+        <thead>
+          <tr><th>Datum</th><th>Rastlina</th><th>Količina</th><th>Stanje</th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="t in tasks" :key="t.id" :class="{ overdue: t.overdue }">
+            <td>{{ formatDate(t.dueDate) }}</td>
+            <td>{{ t.plant.name }}</td>
+            <td>{{ t.plant.waterAmountMl ? `${t.plant.waterAmountMl} ml` : '–' }}</td>
+            <td>
+              <span v-if="t.status === 'DONE'" class="badge active">Opravljeno</span>
+              <span v-else-if="t.overdue" class="badge overdue">Zamujeno</span>
+              <span v-else class="badge">Čaka</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
     <!-- Varuh: prijava na odprto prošnjo -->
     <section v-if="!request.isOwner && request.status === 'OPEN'" class="card apply-box">
