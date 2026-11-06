@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes.js';
 import plantRoutes from './routes/plants.routes.js';
 import requestRoutes from './routes/requests.routes.js';
 import applicationRoutes from './routes/applications.routes.js';
+import taskRoutes from './routes/tasks.routes.js';
 import { UPLOAD_DIR } from './middleware/upload.js';
 
 export const app = express();
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/tasks', taskRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
