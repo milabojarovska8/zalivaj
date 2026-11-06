@@ -5,6 +5,7 @@ import { checkId } from '../middleware/params.js';
 import { validate } from '../middleware/validate.js';
 import * as applicationService from '../services/application.service.js';
 import * as requestService from '../services/request.service.js';
+import * as taskService from '../services/task.service.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -44,6 +45,10 @@ router.get('/mine', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { request, isOwner } = await requestService.getVisible(req.params.id, req.user);
   res.json({ ...request, isOwner });
+});
+
+router.get('/:id/tasks', async (req, res) => {
+  res.json(await taskService.listForRequest(req.params.id, req.user.id));
 });
 
 router.get('/:id/applications', async (req, res) => {

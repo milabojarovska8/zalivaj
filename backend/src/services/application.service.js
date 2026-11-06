@@ -1,5 +1,6 @@
 import { prisma } from '../prisma.js';
 import { conflict, forbidden, notFound } from '../utils/httpError.js';
+import { generateSchedule } from './schedule.service.js';
 import { trustScores } from './trust.service.js';
 
 export async function apply(requestId, sitterId, message) {
@@ -41,7 +42,8 @@ export async function listForRequest(requestId, ownerId) {
   return applications.map((a) => ({ ...a, trust: trust[a.sitterId] }));
 }
 
-// Sprejem varuha: izbrana prijava ACCEPTED, ostale REJECTED, prošnja ACTIVE – vse v eni transakciji.
+// Sprejem varuha: izbrana prijava ACCEPTED, ostale REJECTED, prošnja ACTIVE in ustvarjen urnik zalivanja –
+// vse v eni transakciji (ADR-0006). Če en korak ne uspe, se ne shrani nobena sprememba.
 export async function accept(applicationId, ownerId) {
   const application = await prisma.application.findUnique({ where: { id: applicationId }, include: { request: true } });
   if (!application) throw notFound('Prijava ne obstaja');
@@ -63,6 +65,10 @@ export async function accept(applicationId, ownerId) {
       where: { requestId: request.id, id: { not: applicationId }, status: 'PENDING' },
       data: { status: 'REJECTED' },
     });
-    return { requestId: request.id, status: 'ACTIVE', sitterId: application.sitterId };
+    const plants = await tx.plant.findMany({ where: { requests: { some: { requestId: request.id } } } });
+    const schedule = generateSchedule(request.startDate, request.endDate, plants);
+    await tx.wateringTask.createMany({ data: schedule.map((t) => ({ ...t, requestId: request.id })) });
+
+    return { requestId: request.id, status: 'ACTIVE', sitterId: application.sitterId, tasksCreated: schedule.length };
   });
 }
