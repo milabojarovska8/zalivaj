@@ -11,3 +11,8 @@ export const requestsApi = {
   accept: (applicationId) => api.post(`/applications/${applicationId}/accept`).then((r) => r.data),
   withdraw: (applicationId) => api.patch(`/applications/${applicationId}/withdraw`).then((r) => r.data),
 };
+
+export const tasksApi = {
+  my: () => api.get('/tasks/my').then((r) => r.data),
+  done: (id, note) => api.patch(`/tasks/${id}/done`, { note }).then((r) => r.data),
+};

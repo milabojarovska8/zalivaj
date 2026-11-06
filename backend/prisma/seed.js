@@ -1,5 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
+import { generateSchedule } from '../src/services/schedule.service.js';
+import { toDate, toDateStr, todayStr } from '../src/utils/dates.js';
 
 const prisma = new PrismaClient();
 
@@ -67,6 +69,34 @@ async function main() {
     await prisma.review.create({
       data: { requestId: past.id, authorId: ana.id, sitterId: luka.id, rating: 5, comment: 'Odlično je poskrbel za rastline.' },
     });
+  }
+
+  // Aktivno varstvo za Luko (od predvčerajšnjim do čez 4 dni), da je nadzorna plošča takoj polna
+  if ((await prisma.sittingRequest.count({ where: { sitterId: luka.id, status: 'ACTIVE' } })) === 0) {
+    const today = toDate(todayStr());
+    const day = (offset) => new Date(today.getTime() + offset * 86400000);
+    const plants = await prisma.plant.findMany({ where: { ownerId: ana.id, name: { in: ['Bazilika', 'Fikus'] } } });
+    const active = await prisma.sittingRequest.create({
+      data: {
+        ownerId: ana.id,
+        sitterId: luka.id,
+        status: 'ACTIVE',
+        startDate: day(-2),
+        endDate: day(4),
+        location: 'Rožna dolina, blok 5',
+        plants: { create: plants.map((p) => ({ plantId: p.id })) },
+      },
+    });
+    await prisma.application.create({ data: { requestId: active.id, sitterId: luka.id, status: 'ACCEPTED', message: 'Z veseljem.' } });
+    const schedule = generateSchedule(active.startDate, active.endDate, plants);
+    await prisma.wateringTask.createMany({ data: schedule.map((t) => ({ ...t, requestId: active.id })) });
+    // Prvo zalivanje bazilike je že opravljeno, prvo zalivanje fikusa pa zamujeno.
+    const bazilika = plants.find((p) => p.name === 'Bazilika');
+    await prisma.wateringTask.updateMany({
+      where: { requestId: active.id, plantId: bazilika.id, dueDate: day(-2) },
+      data: { status: 'DONE', doneAt: day(-2), note: 'Vse v redu.' },
+    });
+    console.log(`Aktivno varstvo: ${toDateStr(day(-2))} – ${toDateStr(day(4))}`);
   }
 
   console.log('Testni podatki so naloženi.');

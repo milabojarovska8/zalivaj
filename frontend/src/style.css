@@ -52,3 +52,11 @@ a.btn { text-decoration: none; display: inline-block; }
 .table th, .table td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid #eee; font-size: .9rem; }
 .table th { background: #f0f3ee; }
 .table tr.overdue td { color: #b3261e; }
+.task-row { display: flex; align-items: center; gap: .8rem; margin-bottom: .5rem; flex-wrap: wrap; }
+.task-row.overdue { border: 2px solid #b3261e; }
+.task-info { flex: 1; min-width: 180px; }
+.task-info .badge { margin-left: .4rem; }
+.thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; background: #eef2ec; }
+.thumb.placeholder { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.note { width: 190px; margin: 0; }
+.danger-text { color: #b3261e; }

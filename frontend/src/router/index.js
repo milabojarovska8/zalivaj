@@ -7,6 +7,7 @@ import MyRequestsView from '../views/MyRequestsView.vue';
 import NewRequestView from '../views/NewRequestView.vue';
 import RequestDetailView from '../views/RequestDetailView.vue';
 import OpenRequestsView from '../views/OpenRequestsView.vue';
+import SittingsView from '../views/SittingsView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -19,6 +20,7 @@ const router = createRouter({
     { path: '/requests/new', component: NewRequestView, meta: { auth: true } },
     { path: '/requests/:id', component: RequestDetailView, meta: { auth: true } },
     { path: '/open', component: OpenRequestsView, meta: { auth: true } },
+    { path: '/sittings', component: SittingsView, meta: { auth: true } },
   ],
 });
 

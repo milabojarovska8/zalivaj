@@ -225,3 +225,30 @@ paths:
         "200": { description: Varuh je sprejet }
         "403": { description: Ni pravic }
         "409": { description: Varuh je že izbran ali prijava ne čaka več na odgovor }
+  /api/tasks/my:
+    get:
+      tags: [Urnik zalivanja]
+      summary: Nadzorna plošča varuha
+      description: Opravila aktivnih varstev prijavljenega varuha, razdeljena na overdue, today, upcoming in done.
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Opravila po skupinah }
+  /api/tasks/{id}/done:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Urnik zalivanja]
+      summary: Označitev opravila kot opravljenega (le sprejeti varuh)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note: { type: string, example: Listi so bili malo suhi. }
+      responses:
+        "200": { description: Opravilo ima status DONE }
+        "400": { description: Opravila ni mogoče označiti pred njegovim datumom }
+        "403": { description: Niste varuh te prošnje }
+        "409": { description: Opravilo je že opravljeno ali varstvo ni aktivno }

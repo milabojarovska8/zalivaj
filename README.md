@@ -65,7 +65,7 @@ npm run dev               # aplikacija na http://localhost:5173
 - [x] US-05 – Prijava na prošnjo
 - [x] US-06 – Izbira varuha
 - [x] US-07 – Samodejni urnik zalivanja
-- [ ] US-08 – Nadzorna plošča varuha in odkljukanje opravil
+- [x] US-08 – Nadzorna plošča varuha in odkljukanje opravil
 
 ## Dokumentacija
 
