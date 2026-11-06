@@ -25,6 +25,11 @@ enum RequestStatus {
   CANCELLED
 }
 
+enum TaskStatus {
+  PENDING
+  DONE
+}
+
 enum ApplicationStatus {
   PENDING
   ACCEPTED
@@ -66,6 +71,7 @@ model Plant {
 
   owner    User           @relation(fields: [ownerId], references: [id])
   requests RequestPlant[]
+  tasks    WateringTask[]
 
   @@map("plants")
 }
@@ -85,6 +91,7 @@ model SittingRequest {
   sitter       User?          @relation("SitterRequests", fields: [sitterId], references: [id])
   plants       RequestPlant[]
   applications Application[]
+  tasks        WateringTask[]
   review       Review?
 
   @@map("sitting_requests")
@@ -130,4 +137,20 @@ model Review {
   sitter  User           @relation("ReviewSitter", fields: [sitterId], references: [id])
 
   @@map("reviews")
+}
+
+model WateringTask {
+  id        String     @id @default(uuid()) @db.Uuid
+  requestId String     @map("request_id") @db.Uuid
+  plantId   String     @map("plant_id") @db.Uuid
+  dueDate   DateTime   @map("due_date") @db.Date
+  status    TaskStatus @default(PENDING)
+  doneAt    DateTime?  @map("done_at")
+  note      String?
+
+  request SittingRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  plant   Plant          @relation(fields: [plantId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, dueDate])
+  @@map("watering_tasks")
 }

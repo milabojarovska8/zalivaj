@@ -167,6 +167,16 @@ paths:
         "200": { description: Prošnja }
         "403": { description: Ni pravic }
         "404": { description: Prošnja ne obstaja }
+  /api/requests/{id}/tasks:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Urnik zalivanja]
+      summary: Urnik zalivanja prošnje (lastnik ali sprejeti varuh)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Opravila, razvrščena po datumu }
+        "403": { description: Ni pravic }
   /api/requests/{id}/applications:
     parameters:
       - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
@@ -209,7 +219,7 @@ paths:
     post:
       tags: [Prijave]
       summary: Sprejem varuha (le lastnik prošnje)
-      description: Izbrana prijava postane ACCEPTED, ostale REJECTED, prošnja pa ACTIVE.
+      description: Izbrana prijava postane ACCEPTED, ostale REJECTED, prošnja ACTIVE, sistem pa v isti transakciji ustvari urnik zalivanja.
       security: [{ bearerAuth: [] }]
       responses:
         "200": { description: Varuh je sprejet }
