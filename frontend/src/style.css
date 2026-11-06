@@ -46,3 +46,5 @@ a.btn { text-decoration: none; display: inline-block; }
 .badge.active { color: #2f6b3a; border-color: #2f6b3a; }
 .badge.completed { color: #555; }
 .badge.cancelled, .badge.overdue { color: #b3261e; border-color: #b3261e; }
+.apply-box { margin-top: 1.5rem; max-width: 520px; }
+.apply-box h2 { margin-top: 0; }

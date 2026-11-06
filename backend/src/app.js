@@ -7,6 +7,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.routes.js';
 import plantRoutes from './routes/plants.routes.js';
 import requestRoutes from './routes/requests.routes.js';
+import applicationRoutes from './routes/applications.routes.js';
 import { UPLOAD_DIR } from './middleware/upload.js';
 
 export const app = express();
@@ -22,6 +23,7 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/requests', requestRoutes);
+app.use('/api/applications', applicationRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

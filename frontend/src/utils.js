@@ -21,3 +21,20 @@ export function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+// Slovenska dvojina in množina: 1 varstvo, 2 varstvi, 3–4 varstva, 5+ varstev
+export function plural(n, one, two, few, many) {
+  const m = n % 100;
+  if (m === 1) return one;
+  if (m === 2) return two;
+  if (m === 3 || m === 4) return few;
+  return many;
+}
+
+export function trustLabel(trust) {
+  if (!trust || (trust.averageRating == null && trust.completedSittings === 0)) return 'Nov varuh – še brez ocen';
+  const n = trust.completedSittings;
+  const sittings = `${n} ${plural(n, 'opravljeno varstvo', 'opravljeni varstvi', 'opravljena varstva', 'opravljenih varstev')}`;
+  if (trust.averageRating == null) return `še brez ocen · ${sittings}`;
+  return `★ ${trust.averageRating.toFixed(1).replace('.', ',')} · ${sittings}`;
+}

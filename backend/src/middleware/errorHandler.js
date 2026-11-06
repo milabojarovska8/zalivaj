@@ -16,6 +16,9 @@ export function errorHandler(err, req, res, _next) {
   if (err?.code === 'LIMIT_FILE_SIZE') {
     return res.status(400).json({ error: 'Fotografija je prevelika (največ 5 MB)', fields: { photo: 'Največ 5 MB' } });
   }
+  if (err?.code === 'P2002') {
+    return res.status(409).json({ error: 'Zapis že obstaja' });
+  }
   if (err?.code === 'P2023' || err?.code === 'P2025') {
     return res.status(404).json({ error: 'Ne obstaja' });
   }
