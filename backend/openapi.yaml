@@ -142,6 +142,13 @@ paths:
       responses:
         "201": { description: Prošnja je ustvarjena s statusom OPEN }
         "400": { description: Neveljavni datumi, manjkajoča polja ali tuje rastline }
+  /api/requests/open:
+    get:
+      tags: [Prošnje za varstvo]
+      summary: Odprte prošnje drugih uporabnikov (za varuhe)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Seznam odprtih prošenj z morebitno mojo prijavo }
   /api/requests/mine:
     get:
       tags: [Prošnje za varstvo]
@@ -160,3 +167,51 @@ paths:
         "200": { description: Prošnja }
         "403": { description: Ni pravic }
         "404": { description: Prošnja ne obstaja }
+  /api/requests/{id}/applications:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Prijave]
+      summary: Prijave na prošnjo z oceno zaupanja varuhov (le lastnik)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Seznam prijav s povprečno oceno in številom zaključenih varstev }
+        "403": { description: Ni pravic }
+    post:
+      tags: [Prijave]
+      summary: Prijava varuha na odprto prošnjo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message: { type: string, example: Ves november sem doma. }
+      responses:
+        "201": { description: Prijava ima status PENDING }
+        "403": { description: Na svojo prošnjo se ne morete prijaviti }
+        "409": { description: Na to prošnjo ste se že prijavili ali prošnja ni odprta }
+  /api/applications/{id}/withdraw:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Prijave]
+      summary: Umik prijave, ki še čaka na odgovor
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Prijava ima status WITHDRAWN }
+        "403": { description: Prijava ni vaša }
+        "409": { description: Prijava ne čaka več na odgovor }
+  /api/applications/{id}/accept:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      tags: [Prijave]
+      summary: Sprejem varuha (le lastnik prošnje)
+      description: Izbrana prijava postane ACCEPTED, ostale REJECTED, prošnja pa ACTIVE.
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Varuh je sprejet }
+        "403": { description: Ni pravic }
+        "409": { description: Varuh je že izbran ali prijava ne čaka več na odgovor }

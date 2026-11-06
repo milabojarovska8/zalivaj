@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { requireAuth } from '../middleware/auth.js';
 import { checkId } from '../middleware/params.js';
 import { validate } from '../middleware/validate.js';
+import * as applicationService from '../services/application.service.js';
 import * as requestService from '../services/request.service.js';
 
 const router = Router();
@@ -28,6 +29,14 @@ router.post('/', validate(requestSchema), async (req, res) => {
   res.status(201).json(await requestService.create(req.user.id, req.body));
 });
 
+const applySchema = z.object({
+  message: z.preprocess((v) => (typeof v === 'string' && v.trim() === '' ? null : v), z.string().trim().max(500).nullable().optional()),
+});
+
+router.get('/open', async (req, res) => {
+  res.json(await requestService.listOpen(req.user.id));
+});
+
 router.get('/mine', async (req, res) => {
   res.json(await requestService.listOwn(req.user.id));
 });
@@ -35,6 +44,14 @@ router.get('/mine', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { request, isOwner } = await requestService.getVisible(req.params.id, req.user);
   res.json({ ...request, isOwner });
+});
+
+router.get('/:id/applications', async (req, res) => {
+  res.json(await applicationService.listForRequest(req.params.id, req.user.id));
+});
+
+router.post('/:id/applications', validate(applySchema), async (req, res) => {
+  res.status(201).json(await applicationService.apply(req.params.id, req.user.id, req.body.message));
 });
 
 export default router;

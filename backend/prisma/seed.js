@@ -15,7 +15,7 @@ async function upsertUser({ email, name, password, location, role = 'USER' }) {
 async function main() {
   await upsertUser({ email: 'admin@zalivaj.test', name: 'Administrator', password: 'admin123', location: 'Rožna dolina', role: 'ADMIN' });
   const ana = await upsertUser({ email: 'ana@zalivaj.test', name: 'Ana Novak', password: 'test123', location: 'Rožna dolina, blok 5' });
-  await upsertUser({ email: 'luka@zalivaj.test', name: 'Luka Kovač', password: 'test123', location: 'Rožna dolina, blok 5' });
+  const luka = await upsertUser({ email: 'luka@zalivaj.test', name: 'Luka Kovač', password: 'test123', location: 'Rožna dolina, blok 5' });
   await upsertUser({ email: 'marko@zalivaj.test', name: 'Marko Petek', password: 'test123', location: 'Rožna dolina, blok 5' });
 
   // Anine rastline (le ob prvem zagonu)
@@ -47,6 +47,25 @@ async function main() {
         note: 'Ključ je na recepciji',
         plants: { create: plants.map((p) => ({ plantId: p.id })) },
       },
+    });
+  }
+
+  // Pretekla zaključena prošnja z oceno, da ima Luka oceno zaupanja
+  if ((await prisma.review.count({ where: { sitterId: luka.id } })) === 0) {
+    const plant = await prisma.plant.findFirst({ where: { ownerId: ana.id, name: 'Fikus' } });
+    const past = await prisma.sittingRequest.create({
+      data: {
+        ownerId: ana.id,
+        sitterId: luka.id,
+        status: 'COMPLETED',
+        startDate: new Date('2026-07-01T00:00:00.000Z'),
+        endDate: new Date('2026-07-10T00:00:00.000Z'),
+        location: 'Rožna dolina, blok 5',
+        plants: { create: [{ plantId: plant.id }] },
+      },
+    });
+    await prisma.review.create({
+      data: { requestId: past.id, authorId: ana.id, sitterId: luka.id, rating: 5, comment: 'Odlično je poskrbel za rastline.' },
     });
   }
 

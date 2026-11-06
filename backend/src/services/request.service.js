@@ -46,6 +46,16 @@ export async function create(ownerId, { startDate, endDate, location, note, plan
   return serialize(request);
 }
 
+// Odprte prošnje drugih uporabnikov, z mojo morebitno prijavo.
+export async function listOpen(userId) {
+  const rows = await prisma.sittingRequest.findMany({
+    where: { status: 'OPEN', ownerId: { not: userId } },
+    include: { ...include, applications: { where: { sitterId: userId } } },
+    orderBy: { startDate: 'asc' },
+  });
+  return rows.map((r) => ({ ...serialize(r), myApplication: r.applications[0] || null }));
+}
+
 export async function listOwn(ownerId) {
   const rows = await prisma.sittingRequest.findMany({ where: { ownerId }, include, orderBy: { startDate: 'desc' } });
   return rows.map(serialize);
@@ -53,9 +63,15 @@ export async function listOwn(ownerId) {
 
 // Prošnjo vidijo lastnik, sprejeti varuh, odprto prošnjo pa tudi drugi uporabniki.
 export async function getVisible(id, user) {
-  const r = await prisma.sittingRequest.findUnique({ where: { id }, include });
+  const r = await prisma.sittingRequest.findUnique({
+    where: { id },
+    include: { ...include, applications: { where: { sitterId: user.id } } },
+  });
   if (!r) throw notFound('Prošnja ne obstaja');
   const allowed = r.ownerId === user.id || r.sitterId === user.id || r.status === 'OPEN';
   if (!allowed) throw forbidden();
-  return { request: serialize(r), isOwner: r.ownerId === user.id };
+  return {
+    request: { ...serialize(r), myApplication: r.applications[0] || null },
+    isOwner: r.ownerId === user.id,
+  };
 }
